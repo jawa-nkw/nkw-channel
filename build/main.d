@@ -70,11 +70,14 @@ main.o: E:/Users/Korisnik/Documents/Wii/HBDev/NKW/source/main.cpp \
  C:/devkitpro/portlibs/wii/include/grrlib/GRRLIB_settings.h \
  C:/devkitpro/portlibs/wii/include/grrlib/GRRLIB_texSetup.h \
  C:/devkitpro/libogc/include/ogc/isfs.h \
+ C:/devkitpro/libogc/include/ogc/lwp_watchdog.h \
+ C:/devkitpro/libogc/include/ogc/lwp_queue.h \
  E:/Users/Korisnik/Documents/Wii/HBDev/NKW/build/font_ttf.h \
  E:/Users/Korisnik/Documents/Wii/HBDev/NKW/source/revo-kart/rksys.h \
  E:/Users/Korisnik/Documents/Wii/HBDev/NKW/source/revo-kart/val.h \
  E:/Users/Korisnik/Documents/Wii/HBDev/NKW/source/revo-kart/rkg.h \
  E:/Users/Korisnik/Documents/Wii/HBDev/NKW/source/ui/Button.hpp \
+ E:/Users/Korisnik/Documents/Wii/HBDev/NKW/source/ui/Label.hpp \
  E:/Users/Korisnik/Documents/Wii/HBDev/NKW/source/ios/IOSPatch.h
 C:/devkitpro/libogc/include/wiiuse/wpad.h:
 C:/devkitpro/libogc/include/gctypes.h:
@@ -147,9 +150,12 @@ C:/devkitpro/portlibs/wii/include/grrlib/GRRLIB_pixel.h:
 C:/devkitpro/portlibs/wii/include/grrlib/GRRLIB_settings.h:
 C:/devkitpro/portlibs/wii/include/grrlib/GRRLIB_texSetup.h:
 C:/devkitpro/libogc/include/ogc/isfs.h:
+C:/devkitpro/libogc/include/ogc/lwp_watchdog.h:
+C:/devkitpro/libogc/include/ogc/lwp_queue.h:
 E:/Users/Korisnik/Documents/Wii/HBDev/NKW/build/font_ttf.h:
 E:/Users/Korisnik/Documents/Wii/HBDev/NKW/source/revo-kart/rksys.h:
 E:/Users/Korisnik/Documents/Wii/HBDev/NKW/source/revo-kart/val.h:
 E:/Users/Korisnik/Documents/Wii/HBDev/NKW/source/revo-kart/rkg.h:
 E:/Users/Korisnik/Documents/Wii/HBDev/NKW/source/ui/Button.hpp:
+E:/Users/Korisnik/Documents/Wii/HBDev/NKW/source/ui/Label.hpp:
 E:/Users/Korisnik/Documents/Wii/HBDev/NKW/source/ios/IOSPatch.h:

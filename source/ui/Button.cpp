@@ -33,11 +33,10 @@ void Button::draw() {
 	//frame=frame>32767?0:frame+1;
 	int textLen=GRRLIB_WidthTTF(_font, _text.c_str(), _fontSize);
 	_width=textLen+textLen/4;
-	int r=0;
 	int xc=_x-_width/2;
 	GRRLIB_Rectangle(xc, _y, _width, _height, ncolor, true);
 	int sides=(_width-textLen) / 2;
-	bool buttonPressed=WPAD_ButtonsDown(0) & _wpad_button;
+	bool buttonPressed=*Button::pressedMask & _wpad_button;
 	bool inBox=(*_selected == _id) & (*_menu == _menuId);
 	_textColor=_enabled?0x000000FF:0xB0B0B0FF;
 	GRRLIB_PrintfTTF(xc+sides, _y-(_fontSize/10), _font, _text.c_str(), _fontSize, _textColor);
@@ -52,10 +51,11 @@ void Button::draw() {
 	if (inBox) 
 	{
 		GRRLIB_Rectangle(xc, _y, _width, _height, 0x000000FF, false);
+		WPAD_Rumble(0, 1);
 	}
 
 
-	WPAD_Rumble(0, r);
+	WPAD_Rumble(0, 0);
 	
 }
 

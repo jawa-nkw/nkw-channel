@@ -2,8 +2,20 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string>
-
+#include <ogc/isfs.h>
 using namespace std;
+
+#define ALIGN32(x) (((x) + 31) & ~31)
+bool contains(string x, string y) {
+    return x.find(y) != string::npos;
+}
+int fsize(FILE *fp){
+    int prev=ftell(fp);
+    fseek(fp, 0L, SEEK_END);
+    int sz=ftell(fp);
+    fseek(fp,prev,SEEK_SET); //go back to where we were
+    return sz;
+}
 
 
 string toHex(string s, bool upper) {
@@ -16,8 +28,12 @@ string toHex(string s, bool upper) {
     }
     return hex;
 }
+fstats* cfstats() {
+    fstats* stats=(fstats*)memalign(32, sizeof(fstats));
+    return stats;
+}
 u8* cbuf(unsigned int size) {
-    u8* buf=(u8*)memalign(32, size);
+    u8* buf=(u8*)memalign(32, ALIGN32(size));
     memset(buf, 0, size);
     return buf;
 }

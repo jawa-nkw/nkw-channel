@@ -25,7 +25,8 @@ public:
 	int _id;
 	int frame=0;
 	bool clicked;
-	static int _Id_ovr;
+	inline static int* pressedMask;
+
 	Button(int x, int y, int height, string text, int fontSize, 
 		   GRRLIB_ttfFont* font, u32 color, u32 textColor, int* selected, 
 		   int* menu, int wpad_button, bool enabled, int id, int menuId);

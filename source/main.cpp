@@ -9,14 +9,33 @@
 #include <ogc/isfs.h>
 #include <malloc.h>
 #include <fstream>
+#include <ogc/lwp_watchdog.h> 
 
 
 #include "font_ttf.h"
 #include "revo-kart/rksys.h"
 #include "ui/Button.hpp"
+#include "ui/Label.hpp"
 #include "ios/IOSPatch.h"
 
 using namespace std;
+string fps;
+void getFps() {
+	static u8 frameCount = 0;
+    static u32 lastTime;
+    u32 currentTime = ticks_to_millisecs(gettime());
+
+    ++frameCount;
+    if(currentTime - lastTime > 1000)
+    {
+        lastTime = currentTime;
+        int FPS = frameCount;
+        char fpscharr[32];
+        sprintf(fpscharr, "FPS: %d", FPS);
+        fps=fpscharr;
+        frameCount = 0;
+    }
+}
 void CSV() {
 	string csv="License 1;;;;License 2;;;;License 3;;;;License 4\n;;;;\n";
 	for (int i = 0; i < 66; ++i)
@@ -59,6 +78,9 @@ int main() {
 	int menu=0;
 	int max=1;
 	int selected = 0;
+	int pressed=0;
+
+
 
 	bool enabled=access("/NewerKartWii/data/rkg/lic0/Luigi Circuit.rkg", F_OK) == 0;
 
@@ -117,26 +139,33 @@ int main() {
 					0xDDDDDDFF, 0x000000FF,
 					&selected, &menu, WPAD_BUTTON_A, true, 1, 2);
 
+
+
+	Label progress(320, 30, string(""), 19, font, 0xFFFFFFFF);
 	int nkwfd=ISFS_Open("/title/00010004/4a4e4b57/data/rksys.dat", ISFS_OPEN_READ);
 	bool nkwExists=nkwfd >= 0;
+	
 	ISFS_Close(nkwfd);
+	Button::pressedMask=&pressed;
 	while (true) {
+		getFps();
 		GRRLIB_FillScreen(clr);
+		GRRLIB_PrintfTTF(40, 40, font, fps.c_str(), 18, 0x000000ff);
 		WPAD_ScanPads();
-		
+		pressed=WPAD_ButtonsDown(0) | WPAD_ButtonsDown(1);
 
-		if (WPAD_ButtonsDown(0) & 0x400) {
+		if (pressed & 0x400) {
 			selected=selected>0?selected-1:max;
 		}
-		if (WPAD_ButtonsDown(0) & 0x800) {
+		if (pressed & 0x800) {
 			selected=selected<max?selected+1:0;
 		}
 		
 		
-		if ((exitButton.clicked) | (WPAD_ButtonsDown(0) & WPAD_BUTTON_HOME)) {
+		if ((exitButton.clicked) | (pressed & WPAD_BUTTON_HOME)) {
 			break;
 		}
-		if (WPAD_ButtonsDown(0) & WPAD_BUTTON_B) {
+		if (pressed & WPAD_BUTTON_B) {
 			menu = 0;
 		}
 		
@@ -191,7 +220,15 @@ int main() {
 			max = 1;
 			copySave.draw();
 			if (copySave.clicked) {
-				CopySave();
+				progress.frame=0;
+				string return_s=CopySave();
+				progress._text=return_s;
+				if (contains(progress._text, "err")) {
+					progress._color=0xaa0000ff;
+				}
+				else {
+					progress._color=0x00aa00ff;
+				}		
 			}
 			if (backButtons[1].clicked) {
 				menu = 0;
@@ -199,19 +236,22 @@ int main() {
 		}
 		if (device < 1) {
 			frame=0;
-			GRRLIB_PrintfTTF(320-GRRLIB_WidthTTF(font, "Fat Filesystem not initialized. Retrying...", 19)/2, 30, font, "Fat Filesystem not initialized. Retrying...", 19, 0xaa0000ff);
+			progress.frame=0;
+			progress._text="Fat Filesystem not initialized. Retrying...";
+			progress._color=0xaa0000ff;
 			device=fatInitDefault();
 		}
 		else {
 
 			frame++;
 			if (frame < 60) {
-				GRRLIB_PrintfTTF(320-GRRLIB_WidthTTF(font, "Fat Filesystem succesfully initialized.", 19)/2, 30, font, "Fat Filesystem succesfully initialized.", 19, 0x00aa00ff);
+				progress._text="Fat Filesystem succesfully initialized.";
+				progress._color=0x00aa00ff;
 				enabled=access("/NewerKartWii/data/rkg/lic0/Luigi Circuit.rkg", F_OK) == 0;
 			}
 		}
 
-		if (WPAD_ButtonsDown(0) & WPAD_BUTTON_2) {
+		if (pressed & WPAD_BUTTON_2) {
 			enabled=access("/NewerKartWii/data/rkg/lic0/Luigi Circuit.rkg", F_OK) == 0;
 			device=fatInitDefault();
 			nkwfd=ISFS_Open("/title/00010004/4a4e4b57/data/rksys.dat", ISFS_OPEN_READ);
@@ -223,7 +263,10 @@ int main() {
 			backButtons[menu-1].draw();
 		}
 		exportToCSV._enabled=enabled;
+
+		progress.draw();
 		GRRLIB_Render();
+
 	}
 	ISFS_Deinitialize();
 	GRRLIB_FreeTTF(font);

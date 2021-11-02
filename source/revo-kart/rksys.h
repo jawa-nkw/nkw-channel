@@ -101,42 +101,118 @@ int OverwriteRKSYS()
 	//fclose(fp);
 }
 string CopySave() {
-	string paths={"/data/rksys.dat", "/data/banner.bin", 
-				  "/data/wc24dl.vff", "/data/wc24scr.vff",
-				  "/content/title.tmd"};
+	const int amount=5;
+	char paths[amount][32]={"/data/rksys.dat","/data/wc24dl.vff", "/data/wc24scr.vff", "/data/banner.bin", "/content/title.tmd"};
 
-	string fn="/title/00010004/";
-	fn+=toHex("RMCE", false);
-	for (int i = 0; i < 5; ++i)
+	int retr=0;
+	int retw=0;
+	
+	for (int i = 0; i < amount; ++i)
 	{
-		string fn_=fn+paths[i];
-		fstats* attr;
-		int fd=ISFS_Open(fn_.c_str(), ISFS_OPEN_READ);
+		if (i<=2) {
+			string fn="/title/00010004/";
+			fn+=toHex("RMCE", false);
+			string fn_=fn+paths[i];
+			fstats* attr=cfstats();
+			int fd=ISFS_Open(fn_.c_str(), ISFS_OPEN_READ);
 
-		ISFS_GetFileStats(fd, attr);
-		u32 size=attr.file_stats;
-
-		u8* buf=cbuf(size);
-		ISFS_Read(fd, buf, size);
-
-		fn="/title/00010004/";
-		fn+=toHex("JNKW", false);
-
-		fn_=fn+paths[i];
+			ISFS_GetFileStats(fd, attr);
+			u32 size=attr->file_length;
 
 
-		fd=ISFS_Open(fn_.c_str(), ISFS_OPEN_WRITE);
+			u8* buf=cbuf(size);
+
+			if (!buf) {
+				return "No memory available.";
+			}
+			int tmp=ISFS_Read(fd, buf, size);
+
+
+			if (tmp < 0) {
+				retr--;
+			}
+			else {
+				retr++;
+			}
+
+
+
+			ISFS_Close(fd);
+
+
+			fn="/title/00010004/";
+			fn+=toHex("JNKW", false);
+
+			fn_=fn+paths[i];
+
+			fd=ISFS_Open(fn_.c_str(), ISFS_OPEN_WRITE);
+
+
+			tmp=ISFS_Write(fd, buf, size);
+
+			if (tmp < 0) {
+				retw--;
+			}
+			else {
+				retw++;
+			}
+
+
+			ISFS_Close(fd);
+		}
+		else {
+			string base="/NewerKartWii/channel";
+			string file=paths[i];
+			string full=base+file;
+
+			FILE* fp=fopen(full.c_str(), "r");
+
+
+			u32 size=fsize(fp);
+
+			u8* buf=cbuf(size);
+
+
+			u32 read=fread(buf, sizeof(u8), size, fp);
+			if (read<size) {
+				retr--;
+			}
+			else {
+				retr++;
+			}
+			fclose(fp);
+
+			base="/title/00010004/4a4e4b57";
+			file=paths[i];
+			full=base+file;
+
+			int fd=ISFS_Open(full.c_str(), ISFS_OPEN_WRITE);
+			int w=ISFS_Write(fd, buf, size);
+			if (w<0) {
+				char write[64];
+				sprintf(write, "fn: %s, %d", base.c_str(), w);
+				return write;
+				retw--;
+			}
+			else {
+				retw++;
+			}
+			ISFS_Close(fd);
+		}
+		//return "1amount9";
+	}
+	if ((retr < amount) & (retw == amount)) {
+		return "Read error.";
+	}
+	else if ((retr == amount) & (retw == amount)) {
+		return "Succesfully copied.";
+	}
+	else if ((retr < amount) & (retw < amount)) {
+		return "Read and write error.";
+	}
+	else {
+		return "Write error.";
 	}
 
-
-
-
-	fn+="/data/rksys.dat";
-
-	fd=ISFS_Open(fn.c_str(), ISFS_OPEN_WRITE);
-	int retr=ISFS_Write(fd, buf, 0x2BC000);
-	char ret[64];
-	sprintf(ret, "%d", retr);
-	ISFS_Close(fd);
-	return ret;
+	return "return error.";
 }

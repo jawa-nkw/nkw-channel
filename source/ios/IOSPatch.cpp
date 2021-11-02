@@ -11,7 +11,7 @@ static void disable_memory_protection() {
     write32(MEM_PROT, read32(MEM_PROT) & 0x0000FFFF);
 }
 
-static u32 apply_patch(char *name, const u8 *old, u32 old_size, const u8 *patch, u32 patch_size, u32 patch_offset) {
+static u32 apply_patch(const char *name, const u8 *old, u32 old_size, const u8 *patch, u32 patch_size, u32 patch_offset) {
     u8 *ptr_start = (u8*)*((u32*)0x80003134), *ptr_end = (u8*)0x94000000;
     u32 found = 0;
     u8 *location = NULL;
@@ -54,7 +54,7 @@ const u8 addticket_patch[] = { 0xE0 };
 const u8 es_set_ahbprot_pattern[] = { 0x68, 0x5B, 0x22, 0xEC, 0x00, 0x52, 0x18, 0x9B, 0x68, 0x1B, 0x46, 0x98, 0x07, 0xDB };
 const u8 es_set_ahbprot_patch[]   = { 0x01 };
 
-u32 IOSPATCH_Apply() {
+unsigned int IOSPATCH_Apply() {
     u32 count = 0;
     s32 ret = 0;
     
